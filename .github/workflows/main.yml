@@ -28,7 +28,9 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run the script
-      run: python main.py
+      run: |
+        python main.py
+        sed -i '/<head>/a <meta name="viewport" content="width=device-width, initial-scale=1.0">' index.html
 
     - name: Commit generated index.html
       run: |
