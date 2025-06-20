@@ -26,5 +26,5 @@ pdc["CBA_CABA"] = ripte.ripte / canasta_caba.canasta_basica_alimentaria
 pdc["CBT_CABA"] = ripte.ripte / canasta_caba.canasta_basica_total
 pdc.to_json("data.json")
 
-fig = pdc.loc["2013":].plot()
+fig = pdc.loc["2013":].plot(log_y=True)
 fig.write_html("index.html")
