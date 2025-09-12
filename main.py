@@ -26,6 +26,7 @@ canasta_caba = pd.read_csv(
     index_col="indice_tiempo",
 )
 
+# ----- Poder de Compra -----
 pdc = pd.DataFrame()
 pdc["RIPTE_CBA"] = ripte.ripte / canasta.canasta_basica_alimentaria
 pdc["RIPTE_CBT"] = ripte.ripte / canasta.canasta_basica_total
@@ -37,9 +38,33 @@ pdc["SMVM_CBA_CABA"] = smvm.salario_minimo_vital_movil_mensual / canasta_caba.ca
 pdc["SMVM_CBT_CABA"] = smvm.salario_minimo_vital_movil_mensual / canasta_caba.canasta_basica_total
 pdc = pdc.dropna(how="all")
 
-# export JSON
-pdc.to_json("data.json")
+pdc.to_json("index.json")
+pdc.plot(log_y=True).write_html("index.html")
 
-# export plot
-fig = pdc.plot(log_y=True)
-fig.write_html("index.html")
+# ----- Dolar -----
+dolar = pd.read_json("https://api.argentinadatos.com/v1/cotizaciones/dolares", convert_dates=["fecha"])
+dolar = dolar.set_index("fecha")
+dolar_blue = dolar[dolar.casa == "blue"]
+
+# tipo de cambio BLUE venta promedio mensual
+tc = dolar_blue["venta"].resample("MS").mean()
+
+# series dolarizadas mínimas
+ripte_usd = (ripte["ripte"] / tc).dropna()
+smvm_usd = (smvm["salario_minimo_vital_movil_mensual"] / tc).dropna()
+
+# ----- Salarios -----
+salarios_usd = pd.concat({"RIPTE": ripte_usd, "SMVM": smvm_usd}, axis=1)
+
+salarios_usd.to_json("salarios.json")
+salarios_usd.plot(title="Salarios (USD blue)", log_y=True).write_html("salarios.html")
+
+# ----- Canastas -----
+can_nac_usd = canasta[["canasta_basica_alimentaria","canasta_basica_total"]].div(tc, axis=0).dropna(how="all")
+can_caba_usd = canasta_caba[["canasta_basica_alimentaria","canasta_basica_total"]].div(tc, axis=0).dropna(how="all")
+
+canastas_usd = (can_nac_usd.add_suffix("_nacional")
+                .join(can_caba_usd.add_suffix("_CABA")))
+
+canastas_usd.to_json("canastas.json")
+canastas_usd.plot(title="Canastas (USD blue)", log_y=True).write_html("canastas.html")
