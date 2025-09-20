@@ -39,7 +39,7 @@ pdc["SMVM_CBT_CABA"] = smvm.salario_minimo_vital_movil_mensual / canasta_caba.ca
 pdc = pdc.dropna(how="all")
 
 pdc.to_json("index.json")
-pdc.plot(log_y=True).write_html("index.html")
+pdc.plot(title="Poder de Compra", log_y=True).write_html("index.html")
 
 # ----- Dolar -----
 dolar = pd.read_json("https://api.argentinadatos.com/v1/cotizaciones/dolares", convert_dates=["fecha"])
