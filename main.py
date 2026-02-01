@@ -2,28 +2,36 @@ import pandas as pd
 
 pd.options.plotting.backend = "plotly"
 
+headers = {
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.110 Safari/537.36"
+}
+
 ripte = pd.read_csv(
     "https://infra.datos.gob.ar/catalog/sspm/dataset/158/distribution/158.1/download/remuneracion-imponible-promedio-trabajadores-estables-ripte-total-pais-pesos-serie-mensual.csv",
     parse_dates=["indice_tiempo"],
     index_col="indice_tiempo",
+    storage_options=headers,
 )
 
 smvm = pd.read_csv(
     "https://infra.datos.gob.ar/catalog/sspm/dataset/57/distribution/57.1/download/indice-salario-minimo-vital-movil-valores-mensuales-pesos-corrientes-desde-1988.csv",
     parse_dates=["indice_tiempo"],
     index_col="indice_tiempo",
+    storage_options=headers,
 )
 
 canasta = pd.read_csv(
     "https://infra.datos.gob.ar/catalog/sspm/dataset/150/distribution/150.1/download/valores-canasta-basica-alimentos-canasta-basica-total-mensual-2016.csv",
     parse_dates=["indice_tiempo"],
     index_col="indice_tiempo",
+    storage_options=headers,
 )
 
 canasta_caba = pd.read_csv(
     "https://infra.datos.gob.ar/catalog/sspm/dataset/444/distribution/444.1/download/canastas-basicas-ciudad-de-buenos-aires.csv",
     parse_dates=["indice_tiempo"],
     index_col="indice_tiempo",
+    storage_options=headers,
 )
 
 # ----- Poder de Compra -----
@@ -42,7 +50,11 @@ pdc.to_json("index.json")
 pdc.plot(title="Poder de Compra", log_y=True).write_html("index.html")
 
 # ----- Dolar -----
-dolar = pd.read_json("https://api.argentinadatos.com/v1/cotizaciones/dolares", convert_dates=["fecha"])
+dolar = pd.read_json(
+    "https://api.argentinadatos.com/v1/cotizaciones/dolares",
+    convert_dates=["fecha"],
+    storage_options=headers,
+)
 dolar = dolar.set_index("fecha")
 dolar_blue = dolar[dolar.casa == "blue"]
 

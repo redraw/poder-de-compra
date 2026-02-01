@@ -17,6 +17,20 @@ jobs:
     - name: Check out the code
       uses: actions/checkout@v3
 
+    - name: Tailscale
+      uses: tailscale/github-action@v3
+      with:
+        oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+        oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+        tags: tag:ci
+
+    - name: Set Tailscale exit node
+      run: |
+        set -e
+        EXIT_NODE=$(tailscale exit-node suggest | grep -oP "(?<=Suggested exit node: )[^ ]+")
+        echo $EXIT_NODE
+        sudo tailscale set --exit-node $EXIT_NODE
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
